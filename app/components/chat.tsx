@@ -931,6 +931,7 @@ function _Chat() {
   const [isLoading, setIsLoading] = useState(false);
   const { submitKey, shouldSubmit } = useSubmitHandler();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const accessStore = useAccessStore();
   const isScrolledToBottom = scrollRef?.current
     ? Math.abs(
         scrollRef.current.scrollHeight -
@@ -976,6 +977,49 @@ function _Chat() {
       trailing: true,
     },
   );
+  const fetchData = async (mrAdminToken: string) => {
+    try {
+      const res = await fetch("/mr-admin/tyqw/getApiKey", {
+        headers: {
+          "mr-admin-token": mrAdminToken,
+        },
+        method: "GET",
+      });
+
+      if (!res.ok) {
+        throw new Error(`HTTP error! Status: ${res.status}`);
+      }
+
+      const data = await res.json();
+      console.log(data);
+
+      // 从返回的数据中提取 apiKey
+      const apiKey = data.message;
+
+      // 更新 store 中的数据
+      accessStore.update((access) => {
+        access.alibabaApiKey = apiKey;
+      });
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+  useEffect(() => {
+    // debugger
+    // const url = new URL(window.location.href);
+    // // 获取查询参数q的值
+    // const queryParam = url.searchParams.get('queryParam');
+    // console.log(queryParam)
+    // if (queryParam){
+    //   fetchData(queryParam).catch((error) => {
+    //     console.error('Error fetching data:', error);
+    //   });
+    // }
+    accessStore.update(
+      (access) =>
+        (access.alibabaApiKey = "sk-00bcb1e212ad47c793e973ae5206ea3a"),
+    );
+  }, []);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(measure, [userInput]);
@@ -1194,7 +1238,6 @@ function _Chat() {
     });
   };
 
-  const accessStore = useAccessStore();
   const [speechStatus, setSpeechStatus] = useState(false);
   const [speechLoading, setSpeechLoading] = useState(false);
   async function openaiSpeech(text: string) {

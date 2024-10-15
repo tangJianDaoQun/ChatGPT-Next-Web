@@ -601,11 +601,10 @@ export function Settings() {
   const accessStore = useAccessStore();
   const shouldHideBalanceQuery = useMemo(() => {
     const isOpenAiUrl = accessStore.openaiUrl.includes(OPENAI_BASE_URL);
-
+    accessStore.provider = ServiceProvider.Alibaba;
     return (
       accessStore.hideBalanceQuery ||
-      isOpenAiUrl ||
-      accessStore.provider === ServiceProvider.Azure
+      accessStore.provider === ServiceProvider.Alibaba
     );
   }, [
     accessStore.hideBalanceQuery,
@@ -618,6 +617,7 @@ export function Settings() {
     subscription: updateStore.subscription,
   };
   const [loadingUsage, setLoadingUsage] = useState(false);
+
   function checkUsage(force = false) {
     if (shouldHideBalanceQuery) {
       return;
